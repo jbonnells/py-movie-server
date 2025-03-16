@@ -1,67 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Server</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        #movie-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        #movie-list li {
-            margin: 10px 0;
-        }
-        #movie-list a {
-            text-decoration: none;
-            color: #007BFF;
-            font-size: 18px;
-        }
-        #movie-list a:hover {
-            text-decoration: underline;
-        }
-        #player {
-            width: 100%;
-            height: 500px;
-            border: 1px solid #ccc;
-            background-color: #000;
-            margin-bottom: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie Server</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #222;
+      margin: 0;
+      padding: 20px;
+      color: #fff;
+    }
+    h1 { color: #fff; }
+    #player {
+      width: 100%;
+      height: 500px;
+      border: 1px solid #505050;
+      background-color: #000;
+      margin-bottom: 20px;
+    }
+    #movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+    }
+    .movie-item {
+      text-align: center;
+      cursor: pointer;
+    }
+    .movie-item img {
+      width: 100%;
+      height: auto;
+      border: 1px solid #505050;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      color: #fff;
+    }
+    .movie-title {
+      margin-top: 8px;
+      font-size: 16px;
+      color: #e0e0e0;
+    }
+  </style>
 </head>
 <body>
-    <video id="player" controls></video>
-    <h1>Movie List</h1>
-    <ul id="movie-list"></ul>
+  <video id="player" controls></video>
+  <h1>Movie List</h1>
+  <div id="movie-grid"></div>
 
-    <script>
-        fetch("/movies")
-            .then(response => response.json())
-            .then(movies => {
-                const list = document.getElementById("movie-list");
-                movies.forEach(movie => {
-                    let li = document.createElement("li");
-                    let link = document.createElement("a");
-                    link.href = "/movies/" + encodeURIComponent(movie);
-                    link.textContent = movie;
-                    link.onclick = (e) => {
-                        e.preventDefault();
-                        document.getElementById("player").src = link.href;
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    };
-                    li.appendChild(link);
-                    list.appendChild(li);
-                });
-            });
-    </script>
+  <script>
+    fetch("/movies")
+      .then(response => response.json())
+      .then(movies => {
+        const grid = document.getElementById("movie-grid");
+        movies.forEach(movie => {
+          const item = document.createElement("div");
+          item.className = "movie-item";
+          
+          const img = document.createElement("img");
+          img.src = "/cover/" + encodeURIComponent(movie);
+          img.alt = movie;
+          item.appendChild(img);
+          
+          const title = document.createElement("div");
+          title.className = "movie-title";
+          title.textContent = movie;
+          item.appendChild(title);
+          
+          item.onclick = () => {
+            const videoUrl = "/movies/" + encodeURIComponent(movie);
+            document.getElementById("player").src = videoUrl;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+          
+          grid.appendChild(item);
+        });
+      });
+  </script>
 </body>
 </html>

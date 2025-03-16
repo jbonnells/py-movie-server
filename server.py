@@ -46,6 +46,28 @@ class MovieHandler(SimpleHTTPRequestHandler):
             else:
                 self.send_error(404, "Movie folder not found")
 
+        elif self.path.startswith("/cover/"):
+            folder_name = urllib.parse.unquote(self.path[len("/cover/"):])
+            folder_path = os.path.join(MOVIE_DIR, folder_name)
+            if os.path.isdir(folder_path):
+                cover_path = None
+                for ext in [".jpg", ".png"]:
+                    candidate = os.path.join(folder_path, "cover" + ext)
+                    if os.path.isfile(candidate):
+                        cover_path = candidate
+                        break
+                if cover_path:
+                    mime_type, _ = mimetypes.guess_type(cover_path)
+                    self.send_response(200)
+                    self.send_header("Content-Type", mime_type)
+                    self.end_headers()
+                    with open(cover_path, "rb") as f:
+                        self.wfile.write(f.read())
+                else:
+                    self.send_error(404, "Cover art not found")
+            else:
+                self.send_error(404, "Movie folder not found")
+
         else:
             super().do_GET()
 
